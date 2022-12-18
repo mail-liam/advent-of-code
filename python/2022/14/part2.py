@@ -42,7 +42,6 @@ def get_solidity(pos):
 
 def drop_sand(current_pos=(500, 0)):
     below = current_pos[0], current_pos[1] + 1
-
     if not get_solidity(below):  # Not solid, move into it
         return drop_sand(below)
 
@@ -51,7 +50,7 @@ def drop_sand(current_pos=(500, 0)):
     if not get_solidity(below_left):
         return drop_sand(below_left)
 
-    # Now try bottom left
+    # Now try bottom right
     below_right = current_pos[0] + 1, current_pos[1] + 1
     if not get_solidity(below_right):
         return drop_sand(below_right)
