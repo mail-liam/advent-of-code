@@ -25,7 +25,7 @@ def fill_rock_line(start, end):
 for line in data.splitlines():
     segments = [tuple(point.split(",")) for point in line.split(" -> ")]
     segments = [(int(col), int(row)) for col, row in segments]
-    print(segments)
+    # print(segments)
     for seg_pair in pairwise(segments):
         fill_rock_line(*seg_pair)
 
@@ -33,12 +33,16 @@ for line in data.splitlines():
 MAX_FALL = max(point[1] for point in SOLID_MAP)
 print(f"MAX_FALL: {MAX_FALL}")
 
-
-def drop_sand(current_pos=(500, 0)):
+sand_count = -1
+def drop_sand(current_pos=(500, 0), initial=False):
     below = current_pos[0], current_pos[1] + 1
 
     if below[1] > MAX_FALL:  # Gone too far!
         return False
+
+    if initial:
+        global sand_count
+        sand_count += 1
 
     if not SOLID_MAP[below]:  # Not solid, move into it
         return drop_sand(below)
@@ -53,14 +57,12 @@ def drop_sand(current_pos=(500, 0)):
     if not SOLID_MAP[below_right]:
         return drop_sand(below_right)
 
-    print(f"Placing sand at {current_pos}")
+    # print(f"Placing sand at {current_pos}")
     SOLID_MAP[current_pos] = True
     return True
 
-
-sand_count = 0
-while drop_sand():
-    sand_count += 1
+while drop_sand(initial=True):
+    pass
 
 print(sand_count)
-submit(sand_count, part="a", day=14, year=2022)
+# submit(sand_count, part="a", day=14, year=2022)
