@@ -4,7 +4,7 @@ from itertools import cycle
 from aocd import get_data, submit
 
 data = get_data(day=17, year=2022)
-data = ">>><<><>><<<>><>>><<<>>><<<><<<>><>><<>>"
+# data = ">>><<><>><<<>><>>><<<>>><<<><<<>><>><<>>"
 
 DEBUG = False
 TOTAL_ROCKS = 1_000_000_000_000
@@ -131,8 +131,12 @@ air_jets = cycle(data)
 next_rock = cycle((LineRock, CrossRock, CornerRock, TallRock, SquareRock))
 
 shaft = Shaft()
-for i in range(TOTAL_ROCKS):
-    print(f"Dropping rock {i}")
+prev_highest = 0
+height_per_rock = []
+
+PRE_PERIOD_ROCKS = 229  # 15 for testcase
+print("------------------------------")
+for i in range(PRE_PERIOD_ROCKS):
     spawn_x, spawn_y = 3, shaft.get_highest_point() + 4
     spawn_point = Point(spawn_x, spawn_y)
 
@@ -159,6 +163,30 @@ for i in range(TOTAL_ROCKS):
         else:
             shaft.add_points(rock.show_points)
             break
+    # print(f"End iteration {i}")
+    # print(f"Height gained: {shaft.get_highest_point() - prev_highest}")
+    # height_per_rock.append(shaft.get_highest_point() - prev_highest)
+    # prev_highest = shaft.get_highest_point()
+    # print("------------------------------")
 
-print(shaft.get_highest_point())
+    # if len(height_per_rock) == 100:
+    #     print(",".join(str(height) for height in height_per_rock))
+    #     height_per_rock = []
+
+assert shaft.get_highest_point() == 350
+ROCKS_PER_PERIOD = 1745  # 35 for testcase
+HEIGHT_PER_PERIOD = 2778  # 53 for testcase
+
+# Testcase period: 1,3,3,4,0,1,2,3,0,1,1,3,2,2,0,0,2,3,4,0,1,2,1,2,0,1,2,1,2,0,1,3,2,0,0
+# Get the number of additional (full) periods needed
+periods = (TOTAL_ROCKS - PRE_PERIOD_ROCKS) // ROCKS_PER_PERIOD
+dropped_rocks = PRE_PERIOD_ROCKS + (ROCKS_PER_PERIOD * periods)
+resume_height = shaft.get_highest_point() + (HEIGHT_PER_PERIOD * periods)
+
+# dropped_rocks is exactly amount required for testcase
+# total_height = resume_height
+# dropped_rocks is 999999999219, so need 781 rocks from the period + their associated height (1246)
+total_height = resume_height + 1246
+
+print(total_height)
 # submit(shaft.get_highest_point(), part="b", day=17, year=2022)
