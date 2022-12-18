@@ -103,7 +103,7 @@ total, path = choose_valve(current_location="AA", current_used={"BT"}, current_t
 print(total)
 print(list(reversed(path)))
 
-total2, path2 = choose_valve(current_location="AA", current_used=set(path) - {"BT"}, current_total=0, timer=26)
+total2, path2 = choose_valve(current_location="AA", current_used=set(path), current_total=0, timer=26)
 
 print(total2)
 print(list(reversed(path2)))
