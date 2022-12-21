@@ -1,5 +1,6 @@
 import re
 import typing as t
+from datetime import datetime
 from math import ceil
 
 from aocd import get_data, submit
@@ -12,9 +13,12 @@ NAME = {
     3: "GEODE",
 }
 N_RESOURCES = 4
-TIME_LIMIT = 24
+TIME_LIMIT = 32
 
-data = get_data(day=19, year=2022)
+# data = get_data(day=19, year=2022)
+data = """Blueprint 1: Each ore robot costs 4 ore. Each clay robot costs 4 ore. Each obsidian robot costs 4 ore and 17 clay. Each geode robot costs 4 ore and 20 obsidian.
+Blueprint 2: Each ore robot costs 3 ore. Each clay robot costs 3 ore. Each obsidian robot costs 2 ore and 12 clay. Each geode robot costs 2 ore and 10 obsidian.
+Blueprint 3: Each ore robot costs 3 ore. Each clay robot costs 3 ore. Each obsidian robot costs 2 ore and 20 clay. Each geode robot costs 3 ore and 18 obsidian."""
 # data = """Blueprint 1: Each ore robot costs 4 ore. Each clay robot costs 2 ore. Each obsidian robot costs 3 ore and 14 clay. Each geode robot costs 2 ore and 7 obsidian.
 # Blueprint 2: Each ore robot costs 2 ore. Each clay robot costs 3 ore. Each obsidian robot costs 3 ore and 8 clay. Each geode robot costs 3 ore and 12 obsidian."""
 
@@ -130,7 +134,9 @@ def build_robot(blueprints: BlueprintCosts, robot_count: t.Tuple[int], stockpile
     return max(geode_counts)
 
 
-qualities = []
+score = 1
+start = datetime.now()
+print(f"Simulation with {TIME_LIMIT} seconds")
 for config in data.splitlines():
     blueprint_no, *config = (int(group) for group in INPUT_RE.match(config).groups())
     print(f"Starting blueprint {blueprint_no}")
@@ -144,9 +150,9 @@ for config in data.splitlines():
     )
     
     print(f"Blueprint {blueprint_no} yielded {geode_count} geodes.")
-    quality = blueprint_no * geode_count
-    print(f"Recording quality {quality}")
-    qualities.append(quality)
+    score *= geode_count
 
-print(sum(qualities))
-# submit(sum(qualities), part="a", day=19, year=2022)
+print(score)
+end = datetime.now()
+print(f"Elapsed time: {end - start}")
+# submit(sum(score), part="b", day=19, year=2022)
