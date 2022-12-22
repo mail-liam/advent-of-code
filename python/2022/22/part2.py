@@ -112,27 +112,24 @@ class Grid:
 
         desired_target = self.point + self.FACING_MAP[self.facing]
         point_data = self._grid[desired_target.coordinate]
+        new_facing = None
+
+        # Check for wrap around
+        if point_data == " ":
+            # print("Getting new position from cube map")
+            desired_target, new_facing = POINT_TRANSFORM[(self.point.x, self.point.y, self.facing)]
+            point_data = self._grid[desired_target.coordinate]
 
         if point_data == "#":
             # print("Unable to take step.")
             return False
 
         if point_data == ".":
-            self.point = desired_target
             # print(f"Moving to {desired_target}")
-            return True
-
-        # Wrap around
-        if point_data == " ":
-            # print("Changing cube face")
-            new_point, new_facing = POINT_TRANSFORM[(self.point.x, self.point.y, self.facing)]
-            if self._grid[new_point.coordinate] == "#":
-                print("Did not change cube face: hit a wall")
-                return False
-            
-            self.point = new_point
-            self.facing = new_facing
-            # print(f"Moved to point {self.point}. Facing is now {self.facing}")
+            self.point = desired_target
+            if new_facing is not None:
+                self.facing = new_facing
+                # print(f"Facing is now {self.facing}")
             return True
 
         raise ValueError(f"Invalid point_data found: {point_data}")
