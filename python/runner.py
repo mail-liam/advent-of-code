@@ -27,5 +27,5 @@ if __name__ == "__main__":
 
     if args.submit:
         part = "a" if args.part == 1 else "b"
-        # submit(result, part=part, day=args.day, year=args.year)
+        submit(result, part=part, day=args.day, year=args.year)
 
