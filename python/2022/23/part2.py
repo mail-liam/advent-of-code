@@ -3,9 +3,6 @@ from itertools import cycle
 
 from aocd import get_data, submit
 
-from aocd_python.common.grid import Point
-# from ...common.grid import Point
-
 data = get_data(day=23, year=2022)
 # data = """....#..
 # ..###.#
@@ -19,6 +16,21 @@ DIRECTIONS = ["N", "S", "W", "E"]
 INITIAL_DIRECTION = cycle(DIRECTIONS)
 
 ELF_POSITIONS = {}
+
+class Point:
+    def __init__(self, x, y):
+        self.x = x
+        self.y = y
+
+    def __repr__(self):
+        return f"Point ({self.x}, {self.y})"
+
+    def __add__(self, other):
+        return Point(self.x + other.x, self.y + other.y)
+
+    @property
+    def coordinate(self):
+        return self.x, self.y
 
 
 NORTH_WEST = Point(-1, -1)
@@ -124,4 +136,4 @@ while True:
     rounds += 1
 
 print(rounds + 1)
-# submit(rounds + 1, part="b", day=23, year=2022)
+submit(rounds + 1, part="b", day=23, year=2022)
