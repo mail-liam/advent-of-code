@@ -17,4 +17,4 @@ result = sum(total)
 
 
 print(result)
-submit(result, part="a", day=2, year=2023)
+submit(result, part="a", day=1, year=2023)
