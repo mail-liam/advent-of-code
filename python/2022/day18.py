@@ -1,23 +1,59 @@
 from collections import deque
 
-from aocd import get_data, submit
+from common.parsing import parse_numbers
 
-data = get_data(day=18, year=2022)
-# data = """2,2,2
-# 1,2,2
-# 3,2,2
-# 2,1,2
-# 2,3,2
-# 2,2,1
-# 2,2,3
-# 2,2,4
-# 2,2,6
-# 1,2,5
-# 3,2,5
-# 2,1,5
-# 2,3,5"""
+EXAMPLE_DATA = """2,2,2
+1,2,2
+3,2,2
+2,1,2
+2,3,2
+2,2,1
+2,2,3
+2,2,4
+2,2,6
+1,2,5
+3,2,5
+2,1,5
+2,3,5"""
 
 LAVA = set()
+
+def get_visible_sides(cube):
+    score = 6
+    if (cube[0], cube[1], cube[2] + 1) in LAVA:
+        score -= 1
+
+    if (cube[0], cube[1], cube[2] - 1) in LAVA:
+        score -= 1
+
+    if (cube[0], cube[1] + 1, cube[2]) in LAVA:
+        score -= 1
+
+    if (cube[0], cube[1] - 1, cube[2]) in LAVA:
+        score -= 1
+
+    if (cube[0] + 1, cube[1], cube[2]) in LAVA:
+        score -= 1
+
+    if (cube[0] - 1, cube[1], cube[2]) in LAVA:
+        score -= 1
+
+    return score
+
+
+def part1(data):
+    # data = EXAMPLE_DATA
+
+    for cube in data.splitlines():
+        LAVA.add(parse_numbers(cube))
+
+    return sum(get_visible_sides(cube) for cube in LAVA)
+
+
+#######################################################
+
+MIN_X, MAX_X, MIN_Y, MAX_Y, MIN_Z, MAX_Z = 100, 0, 100, 0, 100, 0
+
 
 def is_out_of_bounds(space):
     return (
@@ -28,6 +64,7 @@ def is_out_of_bounds(space):
         or space[2] < MIN_Z
         or space[2] > MAX_Z
     )
+
 
 def get_empty_adjacent(cube):
     adjacent_spaces = set()
@@ -52,6 +89,7 @@ def get_empty_adjacent(cube):
 
     return adjacent_spaces
 
+
 def count_lava_adjacent(cube):
     score = 0
     if (cube[0], cube[1], cube[2] + 1) in LAVA:
@@ -74,6 +112,7 @@ def count_lava_adjacent(cube):
 
     return score
 
+
 def check_is_outside(space):
     seen = set()
     seen.add(space)
@@ -95,26 +134,26 @@ def check_is_outside(space):
     return False
 
 
-MIN_X, MAX_X, MIN_Y, MAX_Y, MIN_Z, MAX_Z = 100, 0, 100, 0, 100, 0
-for cube in data.splitlines():
-    x, y, z = [int(dim) for dim in cube.split(",")]
-    MIN_X = min(x, MIN_X)
-    MAX_X = max(x, MAX_X)
-    MIN_Y = min(y, MIN_Y)
-    MAX_Y = max(y, MAX_Y)
-    MIN_Z = min(z, MIN_Z)
-    MAX_Z = max(z, MAX_Z)
-    LAVA.add((x, y, z))
-# print(MIN_X, MAX_X, MIN_Y, MAX_Y, MIN_Z, MAX_Z)
+def part2(data):
+    # data = EXAMPLE_DATA
+    global MIN_X, MAX_X, MIN_Y, MAX_Y, MIN_Z, MAX_Z
 
-ADJACENT_EMPTY = set()
-for cube in LAVA:
-    ADJACENT_EMPTY = ADJACENT_EMPTY.union(get_empty_adjacent(cube))
+    for cube in data.splitlines():
+        x, y, z = parse_numbers(cube)
+        MIN_X = min(x, MIN_X)
+        MAX_X = max(x, MAX_X)
+        MIN_Y = min(y, MIN_Y)
+        MAX_Y = max(y, MAX_Y)
+        MIN_Z = min(z, MIN_Z)
+        MAX_Z = max(z, MAX_Z)
+        LAVA.add((x, y, z))
 
-total = 0
-for space in ADJACENT_EMPTY:
-    if check_is_outside(space):
-        total += count_lava_adjacent(space)
+    ADJACENT_EMPTY = set()
+    for cube in LAVA:
+        ADJACENT_EMPTY = ADJACENT_EMPTY.union(get_empty_adjacent(cube))
 
-print(total)
-# submit(total, part="b", day=18, year=2022)
+    return sum(
+        count_lava_adjacent(space)
+        for space in ADJACENT_EMPTY
+        if check_is_outside(space)
+    )
