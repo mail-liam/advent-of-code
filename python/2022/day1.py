@@ -30,13 +30,7 @@ def parse_input(data):
 def part1(data):
     # data = EXAMPLE_DATA
 
-    largest = 0
-    for group in parse_input(data):
-        total = sum(group)
-        if total > largest:
-            largest = total
-
-    return largest
+    return max([sum(group) for group in parse_input(data)])
 
 
 def part2(data):
