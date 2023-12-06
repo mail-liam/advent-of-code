@@ -1,63 +1,35 @@
 from collections import deque
 from itertools import cycle
 
-from aocd import get_data, submit
+from common.grid import Point, ADJACENT_SQUARES, CARDINAL_TO_POINTS
 
-data = get_data(day=23, year=2022)
-# data = """....#..
-# ..###.#
-# #...#.#
-# .#...##
-# #.###..
-# ##.#.##
-# .#..#.."""
 
 DIRECTIONS = ["N", "S", "W", "E"]
+ELF_POSITIONS = {}
 INITIAL_DIRECTION = cycle(DIRECTIONS)
 
-ELF_POSITIONS = {}
+def process_state() -> bool:
+    direction = next(INITIAL_DIRECTION)
+    proposed_directions = [elf.propose_direction(direction) for elf in ELF_POSITIONS.values()]
+    if all(direction is None for direction in proposed_directions):
+        return True
 
-class Point:
-    def __init__(self, x, y):
-        self.x = x
-        self.y = y
+    for elf in ELF_POSITIONS.values():
+        elf.can_change_position()
 
-    def __repr__(self):
-        return f"Point ({self.x}, {self.y})"
+    for elf in [elf for elf in ELF_POSITIONS.values() if elf.should_update]:
+        elf.update()
 
-    def __add__(self, other):
-        return Point(self.x + other.x, self.y + other.y)
+    # print([elf.position for elf in ELF_POSITIONS.values()])
+    return False
 
-    @property
-    def coordinate(self):
-        return self.x, self.y
-
-
-NORTH_WEST = Point(-1, -1)
-NORTH = Point(-1, 0)
-NORTH_EAST = Point(-1, 1)
-WEST = Point(0, -1)
-EAST = Point(0, 1)
-SOUTH_WEST = Point(1, -1)
-SOUTH = Point(1, 0)
-SOUTH_EAST = Point(1, 1)
-ADJACENT_SQUARES = [
-    NORTH_WEST,
-    NORTH,
-    NORTH_EAST,
-    WEST,
-    EAST,
-    SOUTH_WEST,
-    SOUTH,
-    SOUTH_EAST,
-]
-DIRECTION_MAP = {
-    "N": [NORTH_WEST, NORTH, NORTH_EAST],
-    "S": [SOUTH_WEST, SOUTH, SOUTH_EAST],
-    "W": [NORTH_WEST, WEST, SOUTH_WEST],
-    "E": [NORTH_EAST, EAST, SOUTH_EAST],
-}
-
+EXAMPLE_DATA = """....#..
+..###.#
+#...#.#
+.#...##
+#.###..
+##.#.##
+.#..#.."""
 
 class Elf:
     def __init__(self, start_row, start_col):
@@ -86,7 +58,7 @@ class Elf:
         while len(direction_order):
             current_direction = direction_order.popleft()
             # print(f"Checking direction {current_direction}")
-            check_dirs = [self.position + modifier for modifier in DIRECTION_MAP[current_direction]]
+            check_dirs = [self.position + modifier for modifier in CARDINAL_TO_POINTS[current_direction]]
             if all(position.coordinate not in ELF_POSITIONS for position in check_dirs):
                 self.desired_target = check_dirs[1]
                 # print(f"Proposing movement from {self.position} to {self.desired_target}")
@@ -106,34 +78,42 @@ class Elf:
         ELF_POSITIONS[self.desired_target.coordinate] = self
         self.should_update = False
 
+
+def part1(data):
+    # data = EXAMPLE_DATA
+
+    for row, line in enumerate(data.splitlines()):
+        for column, data in enumerate(line):
+            if data == "#":
+                Elf(row, column)
+
+    rounds = 0
+    while rounds < 10:
+        if process_state():
+            break
+        rounds += 1
+
+    print(rounds)
+    rows = [position[0] for position in ELF_POSITIONS]
+    cols = [position[1] for position in ELF_POSITIONS]
+    area = (max(rows) - min(rows) + 1) * (max(cols) - min(cols) + 1)
+
+    return area - len(ELF_POSITIONS)
+
+
+def part2(data):
+    # data = EXAMPLE_DATA
+
+    for row, line in enumerate(data.splitlines()):
+        for column, data in enumerate(line):
+            if data == "#":
+                Elf(row, column)
     
+    rounds = 0
+    while True:
+        if process_state():
+            rounds += 1
+            break
+        rounds += 1
 
-for row, line in enumerate(data.splitlines()):
-    for column, data in enumerate(line):
-        if data == "#":
-            Elf(row, column)
-
-
-def process_state() -> bool:
-    direction = next(INITIAL_DIRECTION)
-    proposed_directions = [elf.propose_direction(direction) for elf in ELF_POSITIONS.values()]
-    if all(direction is None for direction in proposed_directions):
-        return True
-
-    for elf in ELF_POSITIONS.values():
-        elf.can_change_position()
-
-    for elf in [elf for elf in ELF_POSITIONS.values() if elf.should_update]:
-        elf.update()
-
-    # print([elf.position for elf in ELF_POSITIONS.values()])
-    return False
-
-rounds = 0
-while True:
-    if process_state():
-        break
-    rounds += 1
-
-print(rounds + 1)
-submit(rounds + 1, part="b", day=23, year=2022)
+    return rounds
