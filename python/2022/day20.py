@@ -1,16 +1,14 @@
 from collections import deque
-from aocd import get_data, submit
 
-data = get_data(day=20, year=2022)
-# data = """1
-# 2
-# -3
-# 3
-# -2
-# 0
-# 4"""
 
-initial_state = [(int(line), pos) for pos, line in enumerate(data.splitlines())]
+EXAMPLE_DATA = """1
+2
+-3
+3
+-2
+0
+4"""
+
 
 class Rotator:
     def __init__(self, initial_state):
@@ -50,12 +48,33 @@ class Rotator:
         return first + second + third
 
 
+def part1(data):
+    # data = EXAMPLE_DATA
 
-rotator = Rotator(initial_state=initial_state)
-for item in initial_state:
-    # print(f"Locating item {item}")
-    rotator.find(item)
-    rotator.move_end_item(item[0])
+    initial_state = [(int(line), pos) for pos, line in enumerate(data.splitlines())]
 
-print(rotator.score())
-submit(rotator.score(), part="a", day=20, year=2022)
+    rotator = Rotator(initial_state=initial_state)
+    for item in initial_state:
+        # print(f"Locating item {item}")
+        rotator.find(item)
+        rotator.move_end_item(item[0])
+
+    return rotator.score()
+
+
+def part2(data):
+    # data = EXAMPLE_DATA
+
+    DECRYPTION_KEY = 811589153
+    MIX_AMOUNT = 10
+
+    initial_state = [(int(line) * DECRYPTION_KEY, pos) for pos, line in enumerate(data.splitlines())]
+
+    rotator = Rotator(initial_state=initial_state)
+    for _ in range(MIX_AMOUNT):
+        for item in initial_state:
+            # print(f"Locating item {item}")
+            rotator.find(item)
+            rotator.move_end_item(item[0])
+
+    return rotator.score()
