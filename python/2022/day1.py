@@ -30,13 +30,13 @@ def parse_input(data):
 def part1(data):
     # data = EXAMPLE_DATA
 
-    return max([sum(group) for group in parse_input(data)])
+    return max(sum(group) for group in parse_input(data))
 
 
 def part2(data):
     # data = EXAMPLE_DATA
 
-    summed_groups = [sum(group) for group in parse_input(data)]
+    summed_groups = (sum(group) for group in parse_input(data))
     sorted_groups = sorted(summed_groups)
 
     return sum(sorted_groups[-3:])
