@@ -1,5 +1,6 @@
 import argparse
 import importlib
+import time
 
 from aocd import get_data, submit
 
@@ -21,8 +22,11 @@ if __name__ == "__main__":
     module = importlib.import_module(f"{year}.day{day}")
     func = getattr(module, f"part{part}")
 
+    start = time.time()
     result = func(data)
+    end = time.time()
     print(result)
+    print(f"Execution time: {end - start}")
 
 
     if args.submit:
