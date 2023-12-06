@@ -1,5 +1,6 @@
 import itertools
-import re
+
+from common.parsing import parse_numbers
 
 
 def get_transform_data_p1(data):
@@ -12,7 +13,7 @@ def get_transform_data_p1(data):
                 current_transform = []
             continue
 
-        subrange = [int(hit) for hit in re.findall("\d+", line)]
+        subrange = parse_numbers(line)
         if subrange:
             start = subrange[1]
             end = start + subrange[2]
@@ -33,7 +34,7 @@ def get_transform_data_p2(data):
                 current_transform = []
             continue
 
-        subrange = [int(hit) for hit in re.findall("\d+", line)]
+        subrange = parse_numbers(line)
         if subrange:
             dest_start, src_start, length = subrange
             dest_end = dest_start + length - 1
@@ -93,7 +94,7 @@ def part1(data):
 
     split_data = data.splitlines()
     seed_data, map_data = split_data[0], split_data[2:]
-    seeds = [int(hit) for hit in re.findall(r"\d+", seed_data)]
+    seeds = parse_numbers(seed_data)
 
     transform_data = get_transform_data_p1(map_data)
 
@@ -140,7 +141,7 @@ def part2(data):
 
     split_data = data.splitlines()
     seed_data, map_data = split_data[0], split_data[2:]
-    seeds = (int(hit) for hit in re.findall(r"\d+", seed_data))
+    seeds = parse_numbers(seed_data)
 
     seed_ranges = [(start, start + length - 1) for start, length in itertools.batched(seeds, 2)]
     transform_data = get_transform_data_p2(map_data)

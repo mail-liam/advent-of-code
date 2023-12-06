@@ -2,6 +2,8 @@ import operator
 import re
 from functools import reduce
 
+from common.parsing import parse_numbers
+
 EXAMPLE_DATA = """Time:      7  15   30
 Distance:  9  40  200"""
 
@@ -10,12 +12,11 @@ def part1(data):
 
     times, records = data.splitlines()
 
-    race_times = (int(time) for time in re.findall(r"\d+", times))
-    race_records = (int(record) for record in re.findall(r"\d+", records))
+    race_times = parse_numbers(times)
+    race_records = parse_numbers(records)
     races = zip(race_times, race_records)
 
     win_options = []
-
     for time, record in races:
         has_won = False
         possible_wins = 0
