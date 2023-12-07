@@ -45,7 +45,7 @@ class Hand:
     def strength(self):
         tiebreaker = [self.priority.index(card) for card in self.cards]
 
-        if "J" not in self.cards:
+        if self.priority[0] != "J" or "J" not in self.cards:
             return self.get_hand_rank(self.cards), *tiebreaker
 
         card_options = set(self.cards)
