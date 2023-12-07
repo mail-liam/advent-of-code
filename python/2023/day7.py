@@ -66,17 +66,20 @@ class Hand:
         return max_rank, *tiebreaker
 
 
-def part1(data):
-    # data = EXAMPLE_DATA
-
-    priority = "23456789TJQKA"
-
+def create_hands(data, priority):
     hands = []
     for line in data.splitlines():
         cards, bid = line.split(" ")
         hands.append(Hand(cards, int(bid), priority))
-
     hands.sort(key=lambda h: h.strength)
+
+    return hands
+
+
+def part1(data):
+    # data = EXAMPLE_DATA
+
+    hands = create_hands(data, "23456789TJQKA")
 
     return sum((i + 1) * hand.bid for i, hand in enumerate(hands))
 
@@ -85,12 +88,6 @@ def part2(data):
     # data = EXAMPLE_DATA
     # data = """JJJJJ 765"""
 
-    priority = "J23456789TQKA"
-
-    hands = []
-    for line in data.splitlines():
-        cards, bid = line.split(" ")
-        hands.append(Hand(cards, int(bid), priority))
-    hands.sort(key=lambda h: h.strength)
+    hands = create_hands(data, "J23456789TQKA")
 
     return sum((i + 1) * hand.bid for i, hand in enumerate(hands))
