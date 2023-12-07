@@ -7,7 +7,6 @@ KTJJT 220
 QQQJA 483"""
 
 
-
 class Hand:
     def __init__(self, cards, bid, priority):
         self.cards = cards
@@ -71,9 +70,8 @@ def create_hands(data, priority):
     for line in data.splitlines():
         cards, bid = line.split(" ")
         hands.append(Hand(cards, int(bid), priority))
-    hands.sort(key=lambda h: h.strength)
 
-    return hands
+    return sorted(hands, key=lambda h: h.strength)
 
 
 def part1(data):
