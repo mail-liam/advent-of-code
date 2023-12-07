@@ -51,7 +51,7 @@ class Hand:
         card_options = set(self.cards)
         card_options.remove("J")
 
-        if not card_options:
+        if not card_options:  # Hand of all Jokers is a five of a kind
             return 7, *tiebreaker
 
         max_rank = 0
