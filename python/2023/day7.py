@@ -91,13 +91,6 @@ def part2(data):
     for line in data.splitlines():
         cards, bid = line.split(" ")
         hands.append(Hand(cards, int(bid), priority))
-
-    for hand in hands:
-        print(hand.strength)
-
     hands.sort(key=lambda h: h.strength)
-    print(hands)
-
-    # breakpoint()
 
     return sum((i + 1) * hand.bid for i, hand in enumerate(hands))
