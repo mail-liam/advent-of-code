@@ -1,4 +1,5 @@
-import re
+import math
+import typing as t
 from itertools import count, cycle
 
 EXAMPLE_DATA = """RL
@@ -54,7 +55,6 @@ def part2(data):
     data_gen = iter(data.splitlines())
 
     step_order = next(data_gen)
-    step_gen = cycle(step_order)
     next(data_gen)
 
     STATE_MAP = {}
@@ -68,7 +68,8 @@ def part2(data):
         def __init__(self, state):
             self.state = state
 
-        def update(self, step):
+        def update(self, step: t.Literal["L", "R"]):
+            step = 0 if step == "L" else 1
             self.state = STATE_MAP[self.state][step]
 
 
@@ -77,35 +78,26 @@ def part2(data):
         if state[-1] == "A":
             GHOSTS.append(Ghost(state))
 
-    ghost = GHOSTS[0]
-    seen_states = set()
-    valid_states = []
 
-    MAX_STATES = 2 * len(STATE_MAP)
-    print(MAX_STATES)
-    for i in count(1):
-        step = 0 if next(step_gen) == "L" else 1
-        seen_states.add((ghost.state, step))
-        ghost.update(step)
+    def find_first_ghost_z_point(ghost: Ghost, step_order):
+        count = 0
+        step_gen = iter(step_order)
+        direction = next(step_gen)
 
-        if (ghost.state, step) in seen_states:
-            print(ghost.state, step)
-            break
-        
-        if ghost.state[-1] == "Z":
-            print(f"Found Z state at step {i}")
-            valid_states.append(i)
+        while True:
+            try:
+                if ghost.state[-1] == "Z":
+                    print(f"Found Z state at step {count}")
+                    return count
 
-    print(valid_states)
-    breakpoint()
+                ghost.update(direction)
+                count += 1
+                direction = next(step_gen)
+            except StopIteration:
+                step_gen = iter(enumerate(step_order))
+                direction = next(step_gen)
 
 
-    for i in count(1):
-        step = 0 if next(step_gen) == "L" else 1
-        for ghost in GHOSTS:
-            ghost.update(step)
+    ghost_z_times = [find_first_ghost_z_point(ghost, step_order) for ghost in GHOSTS]
 
-        if all(ghost.state[-1] == "Z" for ghost in GHOSTS):
-            break
-
-    return i
+    return math.lcm(*ghost_z_times)
