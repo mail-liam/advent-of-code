@@ -1,32 +1,14 @@
 from collections import defaultdict
 from itertools import cycle
 
-from aocd import get_data, submit
-
-data = get_data(day=17, year=2022)
-# data = ">>><<><>><<<>><>>><<<>>><<<><<<>><>><<>>"
+from common.grid import Point
 
 DEBUG = False
-TOTAL_ROCKS = 2022
-
-class Point:
-    def __init__(self, x, y):
-        self.x = x
-        self.y = y
-
-    def __repr__(self):
-        return f"Point ({self.x}, {self.y})"
-
-    def __add__(self, other):
-        return Point(self.x + other.x, self.y + other.y)
-
-    @property
-    def coordinate(self):
-        return self.x, self.y
-
+EXAMPLE_DATA = ">>><<><>><<<>><>>><<<>>><<<><<<>><>><<>>"
 RIGHT = Point(1, 0)
 LEFT = Point(-1, 0)
 DOWN = Point(0, -1)
+
 
 class Shaft:
     def __init__(self):
@@ -127,37 +109,69 @@ class SquareRock(Rock):
         )
 
 
-air_jets = cycle(data)
-next_rock = cycle((LineRock, CrossRock, CornerRock, TallRock, SquareRock))
+def process_rocks(total_rocks, air_data) -> Shaft:
+    air_jets = cycle(air_data)
+    next_rock = cycle((LineRock, CrossRock, CornerRock, TallRock, SquareRock))
 
-shaft = Shaft()
-for _ in range(TOTAL_ROCKS):
-    spawn_x, spawn_y = 3, shaft.get_highest_point() + 4
-    spawn_point = Point(spawn_x, spawn_y)
+    shaft = Shaft()
+    for _ in range(total_rocks):
+        spawn_x, spawn_y = 3, shaft.get_highest_point() + 4
+        spawn_point = Point(spawn_x, spawn_y)
 
-    rock_class = next(next_rock)
-    rock = rock_class(start_point=spawn_point)
-    if DEBUG:
-        print(f"Spawned {rock}")
+        rock_class = next(next_rock)
+        rock = rock_class(start_point=spawn_point)
+        if DEBUG:
+            print(f"Spawned {rock}")
 
-    while True:
-        direction = RIGHT if next(air_jets) == ">" else LEFT
+        while True:
+            direction = RIGHT if next(air_jets) == ">" else LEFT
 
-        if shaft.can_move(rock, direction):
-            new_spawn = rock.start_point + direction
-            rock = rock_class(new_spawn)
-            if DEBUG:
-                dir_name = "right" if direction is RIGHT else "left"
-                print(f"Rock moved {dir_name}: {rock}")
+            if shaft.can_move(rock, direction):
+                new_spawn = rock.start_point + direction
+                rock = rock_class(new_spawn)
+                if DEBUG:
+                    dir_name = "right" if direction is RIGHT else "left"
+                    print(f"Rock moved {dir_name}: {rock}")
 
-        if shaft.can_move(rock, DOWN):
-            new_spawn = rock.start_point + DOWN
-            rock = rock_class(new_spawn)
-            if DEBUG:
-                print(f"Rock moved down: {rock}")
-        else:
-            shaft.add_points(rock.show_points)
-            break
+            if shaft.can_move(rock, DOWN):
+                new_spawn = rock.start_point + DOWN
+                rock = rock_class(new_spawn)
+                if DEBUG:
+                    print(f"Rock moved down: {rock}")
+            else:
+                shaft.add_points(rock.show_points)
+                break
 
-print(shaft.get_highest_point())
-submit(shaft.get_highest_point(), part="a", day=17, year=2022)
+    return shaft
+
+
+def part1(data):
+    # data = EXAMPLE_DATA
+    TOTAL_ROCKS = 2022
+
+    shaft = process_rocks(TOTAL_ROCKS, data)
+
+    return shaft.get_highest_point()
+
+
+def part2(data):
+    # data = EXAMPLE_DATA
+    TOTAL_ROCKS = 1_000_000_000_000
+    PRE_PERIOD_ROCKS = 229  # 15 for testcase
+
+    shaft = process_rocks(PRE_PERIOD_ROCKS, data)
+    assert shaft.get_highest_point() == 350
+
+    ROCKS_PER_PERIOD = 1745  # 35 for testcase
+    HEIGHT_PER_PERIOD = 2778  # 53 for testcase
+
+    # Testcase period: 1,3,3,4,0,1,2,3,0,1,1,3,2,2,0,0,2,3,4,0,1,2,1,2,0,1,2,1,2,0,1,3,2,0,0
+    # Get the number of additional (full) periods needed
+    periods = (TOTAL_ROCKS - PRE_PERIOD_ROCKS) // ROCKS_PER_PERIOD
+    # dropped_rocks = PRE_PERIOD_ROCKS + (ROCKS_PER_PERIOD * periods)
+    resume_height = shaft.get_highest_point() + (HEIGHT_PER_PERIOD * periods)
+
+    # dropped_rocks is exactly amount required for testcase
+    # total_height = resume_height
+    # dropped_rocks is 999999999219, so need 781 rocks from the period + their associated height (1246)
+    return resume_height + 1246
