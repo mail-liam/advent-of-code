@@ -20,6 +20,18 @@ class Point:
         return self.x, self.y
     
 
+class DistancePoint(Point):
+    def __init__(self, *args, distance=0, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.distance = distance
+
+    def __repr__(self):
+        return f"DistancePoint ({self.x}, {self.y}) [{self.distance}]"
+
+    def __add__(self, other):
+        return DistancePoint(self.x + other.x, self.y + other.y, distance=self.distance + 1)
+
+
 NORTH_WEST = Point(-1, -1)
 NORTH = Point(-1, 0)
 NORTH_EAST = Point(-1, 1)
