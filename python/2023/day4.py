@@ -34,7 +34,7 @@ def part1(data):
     # data = EXAMPLE_DATA
     CARDS = [Card.from_data(line) for line in data.splitlines()]
 
-    return sum(max(0, (math.pow(2, card.get_score() - 1 ) // 1 )) for card in CARDS)
+    return sum(max(0, math.pow(2, card.get_score() - 1)) // 1 for card in CARDS)
 
 
 def part2(data):
