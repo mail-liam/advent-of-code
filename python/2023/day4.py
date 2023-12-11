@@ -12,61 +12,34 @@ Card 5: 87 83 26 28 32 | 88 30 70 12 93 22 82 36
 Card 6: 31 18 13 56 72 | 74 77 10 23 35 67 36 11"""
 
 
+class Card:
+    def __init__(self, id, winning, numbers):
+        self.id = id
+        self.winning = winning
+        self.numbers = numbers
+
+    def get_score(self):
+        return sum(1 for num in self.numbers if num in self.winning)
+    
+    @classmethod
+    def from_data(cls, data):
+        card_no, cards = data.split(": ")
+        card_number = parse_numbers(card_no)[0]
+        winning, entries = cards.split(" | ")
+
+        return Card(id=card_number, winning=parse_numbers(winning), numbers=parse_numbers(entries))
+
+
 def part1(data):
     # data = EXAMPLE_DATA
-    
-    class Card:
-        def __init__(self, winning, numbers):
-            self.winning = winning
-            self.numbers = numbers
+    CARDS = [Card.from_data(line) for line in data.splitlines()]
 
-        def get_score(self):
-            score = 0
-            for num in self.numbers:
-                if num in self.winning:
-                    score += 1
-
-            return max(0, math.pow(2, score - 1))
-        
-    CARDS = []
-    for line in data.splitlines():
-        _, cards = line.split(": ")
-        
-        winning, entries = cards.split(" | ")
-        winning_nums, entry_nums = parse_numbers(winning), parse_numbers(entries)
-
-        CARDS.append(Card(winning_nums, entry_nums))
-
-    return sum(card.get_score() // 1 for card in CARDS)
+    return sum(max(0, (math.pow(2, card.get_score() - 1 ) // 1 )) for card in CARDS)
 
 
 def part2(data):
     # data = EXAMPLE_DATA
-
-    class Card:
-        def __init__(self, id, winning, numbers):
-            self.id = id
-            self.winning = winning
-            self.numbers = numbers
-
-        def get_score(self):
-            score = 0
-            for num in self.numbers:
-                if num in self.winning:
-                    score += 1
-
-            return score
-
-    CARDS = []
-    for line in data.splitlines():
-        card_no, cards = line.split(": ")
-        card_number = int(re.search(r"\d+", card_no)[0])
-        
-        winning, entries = cards.split(" | ")
-        winning_nums, entry_nums = parse_numbers(winning), parse_numbers(entries)
-
-        CARDS.append(Card(card_number, winning_nums, entry_nums))
-
+    CARDS = [Card.from_data(line) for line in data.splitlines()]
     CARD_COUNTS = {card.id: 1 for card in CARDS}
     MAX_COUNT = max(CARD_COUNTS)
 
@@ -81,5 +54,4 @@ def part2(data):
                 break
             CARD_COUNTS[next_card_id] += count
 
-    # print(CARD_COUNTS)
     return sum(CARD_COUNTS.values())
