@@ -1,6 +1,6 @@
 from itertools import combinations
 
-from common.grid import Point
+from common.grid import Point, get_vertical_slice
 
 EXAMPLE_DATA = """...#......
 .......#..
@@ -12,10 +12,6 @@ EXAMPLE_DATA = """...#......
 ..........
 .......#..
 #...#....."""
-
-
-def get_vertical_slice(grid, col: int):
-    return [row[col] for row in grid]
 
 
 def get_manhatten_distance(a: Point, b: Point):
