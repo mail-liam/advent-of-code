@@ -107,11 +107,11 @@ def part2(data):
 
     # Sample data: p=7, offset=2
     # value_period = (69, 69, 65, 64, 65, 63, 68)
-    # index = 1_000_000_000 % len(value_period) + 2
+    # index = (999_999_999 - 2) % len(value_period)
             
     offset = 105
     value_period = (87286, 87284, 87282, 87264, 87258, 87272, 87286, 87288, 87271, 87266, 87273, 87287, 87292)
-    index = 1_000_000_000 % len(value_period) + offset
+    index = (999_999_999 - offset) % len(value_period)
 
     try:
         return value_period[index]
