@@ -1,24 +1,15 @@
-import re
+import math
 import typing as t
-from math import ceil
 
-from aocd import get_data, submit
+from common.parsing import parse_numbers
 
-DEBUG = True
-NAME = {
-    0: "ORE",
-    1: "CLAY",
-    2: "OBSIDIAN",
-    3: "GEODE",
-}
+DEBUG = False
+NAME = ("ORE", "CLAY", "OBSIDIAN", "GEODE")
 N_RESOURCES = 4
-TIME_LIMIT = 24
 
-data = get_data(day=19, year=2022)
-# data = """Blueprint 1: Each ore robot costs 4 ore. Each clay robot costs 2 ore. Each obsidian robot costs 3 ore and 14 clay. Each geode robot costs 2 ore and 7 obsidian.
-# Blueprint 2: Each ore robot costs 2 ore. Each clay robot costs 3 ore. Each obsidian robot costs 3 ore and 8 clay. Each geode robot costs 3 ore and 12 obsidian."""
+EXAMPLE_DATA = """Blueprint 1: Each ore robot costs 4 ore. Each clay robot costs 2 ore. Each obsidian robot costs 3 ore and 14 clay. Each geode robot costs 2 ore and 7 obsidian.
+Blueprint 2: Each ore robot costs 2 ore. Each clay robot costs 3 ore. Each obsidian robot costs 3 ore and 8 clay. Each geode robot costs 3 ore and 12 obsidian."""
 
-INPUT_RE = re.compile("Blueprint (\d*): Each ore robot costs (\d*) ore. Each clay robot costs (\d*) ore. Each obsidian robot costs (\d*) ore and (\d*) clay. Each geode robot costs (\d*) ore and (\d*) obsidian")
 
 class BlueprintCosts:
     def __init__(self, ore_bot_ore_cost: int, clay_bot_ore_cost: int, obs_bot_ore_cost: int, obs_bot_clay_cost: int, geode_bot_ore_cost: int, geode_bot_obs_cost: int):
@@ -61,7 +52,7 @@ def update_stockpile(stockpile: t.Tuple[int], incomes: t.Tuple[int], elapsed_tim
     )
 
 
-def build_robot(blueprints: BlueprintCosts, robot_count: t.Tuple[int], stockpile: t.Tuple[int], time_left: int):
+def build_robot(blueprints: BlueprintCosts, robot_count: t.Tuple[int], stockpile: t.Tuple[int], time_left: int, max_time: int):
     if time_left == 1:
         # debug_print(f"Final cycle: skipping robot build")
         return stockpile[3] + robot_count[3]
@@ -94,10 +85,10 @@ def build_robot(blueprints: BlueprintCosts, robot_count: t.Tuple[int], stockpile
             missing_cost = max(cost - available, 0)
             # debug_print(f"Requires {cost} units of {NAME[resource]}. Have {available}, so need {missing_cost}")
             try:
-                wait_time = int(ceil(missing_cost / income))
+                wait_time = int(math.ceil(missing_cost / income))
             except ZeroDivisionError:
                 # debug_print(f"STOPPING ANALYSIS - no income of resource {NAME[resource]}")
-                time_until_cost_met.append(TIME_LIMIT)  # Hacky af
+                time_until_cost_met.append(max_time)  # Hacky af
                 break
             # debug_print(f"It will take {wait_time} seconds to get enough {NAME[resource]}")
             time_until_cost_met.append(wait_time)
@@ -115,7 +106,7 @@ def build_robot(blueprints: BlueprintCosts, robot_count: t.Tuple[int], stockpile
         new_stockpile = pay_robot_cost(new_stockpile, robot_cost)
 
         # debug_print(f"New arguments to build_robot | robot_count: {new_robot_count} | stockpile: {new_stockpile} | time_left: {new_time_left}")
-        geode_count = build_robot(blueprints=blueprints, robot_count=new_robot_count, stockpile=new_stockpile, time_left=new_time_left)
+        geode_count = build_robot(blueprints=blueprints, robot_count=new_robot_count, stockpile=new_stockpile, time_left=new_time_left, max_time=max_time)
         geode_counts.add(geode_count)
     
     if not geode_counts:
@@ -130,23 +121,49 @@ def build_robot(blueprints: BlueprintCosts, robot_count: t.Tuple[int], stockpile
     return max(geode_counts)
 
 
-qualities = []
-for config in data.splitlines():
-    blueprint_no, *config = (int(group) for group in INPUT_RE.match(config).groups())
-    print(f"Starting blueprint {blueprint_no}")
-    blueprints = BlueprintCosts(*config)
+def part1(data):
+    # data = EXAMPLE_DATA
 
-    geode_count = build_robot(
-        blueprints=blueprints,
-        robot_count=(1, 0, 0, 0),
-        stockpile=(0, 0, 0, 0),
-        time_left=TIME_LIMIT,
-    )
-    
-    print(f"Blueprint {blueprint_no} yielded {geode_count} geodes.")
-    quality = blueprint_no * geode_count
-    print(f"Recording quality {quality}")
-    qualities.append(quality)
+    TIME_LIMIT = 24
+    qualities = []
+    for config in data.splitlines():
+        blueprint_no, *blueprint_args = parse_numbers(config)
+        print(f"Starting blueprint {blueprint_no}")
+        blueprints = BlueprintCosts(*blueprint_args)
 
-print(sum(qualities))
-# submit(sum(qualities), part="a", day=19, year=2022)
+        geode_count = build_robot(
+            blueprints=blueprints,
+            robot_count=(1, 0, 0, 0),
+            stockpile=(0, 0, 0, 0),
+            time_left=TIME_LIMIT,
+            max_time=TIME_LIMIT,
+        )
+        
+        print(f"Blueprint {blueprint_no} yielded {geode_count} geodes.")
+        qualities.append(blueprint_no * geode_count)
+
+    return sum(qualities)
+
+
+def part2(data):
+    # data = EXAMPLE_DATA
+
+    TIME_LIMIT = 32
+    score = 1
+    for config in data.splitlines()[:3]:
+        blueprint_no, *blueprint_args = parse_numbers(config)
+        print(f"Starting blueprint {blueprint_no}")
+        blueprints = BlueprintCosts(*blueprint_args)
+
+        geode_count = build_robot(
+            blueprints=blueprints,
+            robot_count=(1, 0, 0, 0),
+            stockpile=(0, 0, 0, 0),
+            time_left=TIME_LIMIT,
+            max_time=TIME_LIMIT,
+        )
+        
+        print(f"Blueprint {blueprint_no} yielded {geode_count} geodes.")
+        score *= geode_count
+
+    return score
