@@ -41,9 +41,10 @@ SOUTH_WEST = Point(1, -1)
 SOUTH = Point(1, 0)
 SOUTH_EAST = Point(1, 1)
 
-ADJACENT_SQUARES = [
+CARDINAL_ADJACENT = (NORTH, EAST, SOUTH, WEST)
+ADJACENT_SQUARES = (
     NORTH_WEST, NORTH, NORTH_EAST, WEST, EAST, SOUTH_WEST, SOUTH, SOUTH_EAST
-]
+)
 
 
 def get_vertical_slice(grid, col: int):
