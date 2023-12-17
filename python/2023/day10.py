@@ -1,6 +1,6 @@
 from collections import defaultdict, deque
 
-from common.grid import NORTH, SOUTH, EAST, WEST, DistancePoint, Point
+from common.grid import NORTH, SOUTH, EAST, WEST, CARDINAL_ADJACENT, DistancePoint, Point
 
 EXAMPLE_DATA = """7-F7-
 .FJ|7
@@ -9,7 +9,6 @@ SJLL7
 LJ.LJ"""
 
 
-ADJACENT_POINTS = (NORTH, EAST, SOUTH, WEST)
 DIRECTION_TO_PIPE = {
     NORTH.coordinate: ("|", "F", "7"),
     EAST.coordinate: ("J", "-", "7"),
@@ -31,7 +30,7 @@ def get_pipe_segments(grid, start):
     seen.add(start)
     to_check = deque()
     # Find pipes pointing to start
-    for direction in ADJACENT_POINTS:
+    for direction in CARDINAL_ADJACENT:
         new_point = start + direction
 
         if new_point.x < 0 or new_point.y < 0:
