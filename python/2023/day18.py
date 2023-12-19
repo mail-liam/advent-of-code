@@ -1,4 +1,5 @@
 import re
+from collections import deque
 
 from common.grid import Point, NORTH, EAST, SOUTH, WEST, CARDINAL_ADJACENT
 
@@ -18,9 +19,9 @@ U 3 (#a77fa3)
 L 2 (#015232)
 U 2 (#7a21e3)"""
 
-INPUT_RE = re.compile(r"(\w) (\d+) \((#[\w|\d]+)\)")
+INPUT_RE = re.compile(r"(\w) (\d+) \(#([\w|\d]+)\)")
 
-DIRECTION_TO_POINT = {"U": NORTH, "L": WEST, "D": SOUTH, "R": EAST}
+DIRECTION_TO_POINT = {"U": NORTH, "3": NORTH, "L": WEST, "2": WEST, "D": SOUTH, "1": SOUTH, "R": EAST, "0": EAST}
 
 
 def debug_print(message):
@@ -35,7 +36,6 @@ def visualize_grid(points, x_min, x_max, y_min, y_max):
             symbol = "#" if point in points else "."
             print(symbol, end="")
         print("")
-
 
 
 def part1(data):
@@ -53,64 +53,57 @@ def part1(data):
             current_point = current_point + point_direction
             edge_points.add(current_point)
 
-    all_x = [point.x for point in edge_points]
-    grid_min_x = min(all_x)
-    grid_max_x = max(all_x)
+    # all_x = [point.x for point in edge_points]
+    # grid_min_x = min(all_x)
+    # grid_max_x = max(all_x)
 
-    all_y = [point.y for point in edge_points]
-    grid_min_y = min(all_y)
-    grid_max_y = max(all_y)
+    # all_y = [point.y for point in edge_points]
+    # grid_min_y = min(all_y)
+    # grid_max_y = max(all_y)
 
-    visualize_grid(edge_points, grid_min_x, grid_max_x, grid_min_y, grid_max_y)
-    breakpoint()
+    # visualize_grid(edge_points, grid_min_x, grid_max_x, grid_min_y, grid_max_y)
 
     interior_points = set()
-    for i in range(grid_min_x, grid_max_x + 1):
-        for j in range(grid_min_y, grid_max_y + 1):
-            test_point = Point(i, j)
+    queue = deque()
+    # Below determined via min_x points: [Point (-199, 181), Point (-199, 180), Point (-199, 179), Point (-199, 178)]
+    start_point = Point(-198, 180)
+    queue.append(start_point)
+    interior_points.add(start_point)
 
-            if test_point in edge_points:
-                debug_print(f"Skipping {test_point} as it is an edge")
+    while queue:
+        current_point = queue.popleft()
+
+        for direction in CARDINAL_ADJACENT:
+            next_point = current_point + direction
+
+            if next_point in edge_points:
                 continue
 
-            next_point = test_point
-            debug_print(f"Testing {test_point}")
-            edge_found = True
-            for direction in CARDINAL_ADJACENT:
-                if not edge_found:
-                    debug_print("Skipping remaining directions")
-                    break
-
-                while True:
-                    next_point = next_point + direction
-                    debug_print(f"Taking step {next_point} from direction {direction}")
-
-                    if next_point in edge_points:
-                        debug_print(f"Found edge {next_point} for {test_point} from direction {direction}")
-                        next_point = test_point
-                        break
-
-                    if (
-                        next_point.x < grid_min_x
-                        or next_point.x > grid_max_x
-                        or next_point.y < grid_min_y
-                        or next_point.y > grid_max_y
-                    ):
-                        debug_print(f"Encountered external point: {test_point}")
-                        edge_found = False
-                        break
-            
-            if edge_found:
-                debug_print(f"{test_point} is internal")
-                interior_points.add(test_point)
-            # breakpoint()
+            if next_point not in interior_points:
+                interior_points.add(next_point)
+                queue.append(next_point)
 
     return len(interior_points.union(edge_points))
 
 
 def part2(data):
-    data = EXAMPLE_DATA
+    # data = EXAMPLE_DATA
+
+    edge_points = set()
+    current_point = Point(0, 0)
+    edge_points.add(current_point)
+
+    for line in data.splitlines():
+        _, _, hex_code = INPUT_RE.match(line).groups()
+        hex_distance, direction = hex_code[:-1], hex_code[-1]
+        distance = int(f"0x{hex_distance}", base=16)
+        print(f"{direction} {distance}")
+
+        # point_direction = DIRECTION_TO_POINT[direction]
+        # for _ in range(distance):
+        #     current_point = current_point + point_direction
+        #     edge_points.add(current_point)
 
 
 
-    return data
+    return len(data.splitlines())
