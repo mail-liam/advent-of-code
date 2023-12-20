@@ -122,8 +122,6 @@ def part2(data):
                 nand_gate.mem[name] = False
 
 
-    high_pulses = 0
-    low_pulses = 0
     rx_found = False
 
     for i in itertools.count(1):
@@ -131,17 +129,11 @@ def part2(data):
         # Push button
         button_outputs = ((target, ("broadcaster", False)) for target in broadcast_targets)
         queue.extend(button_outputs)
-        low_pulses += 1
 
         while queue:
             # print(queue)
             # breakpoint()
             target, pulse = queue.popleft()
-
-            if pulse[1]:
-                high_pulses += 1
-            else:
-                low_pulses += 1
 
             target_module = MODULES.get(target)
             if target_module is None:
