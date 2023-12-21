@@ -1,3 +1,4 @@
+import itertools
 import re
 from collections import deque
 
@@ -86,24 +87,32 @@ def part1(data):
     return len(interior_points.union(edge_points))
 
 
+def get_determinant(a, b):
+    return a.x * b.y - b.x * a.y
+
+
 def part2(data):
     # data = EXAMPLE_DATA
 
-    edge_points = set()
     current_point = Point(0, 0)
-    edge_points.add(current_point)
-
+    vertices = [current_point]
+    edge_points = 0  # Start at 0 to not double up when we loop
     for line in data.splitlines():
         _, _, hex_code = INPUT_RE.match(line).groups()
         hex_distance, direction = hex_code[:-1], hex_code[-1]
         distance = int(f"0x{hex_distance}", base=16)
-        print(f"{direction} {distance}")
+        # print(f"{direction} {distance}")
 
-        # point_direction = DIRECTION_TO_POINT[direction]
-        # for _ in range(distance):
-        #     current_point = current_point + point_direction
-        #     edge_points.add(current_point)
+        point_direction = DIRECTION_TO_POINT[direction]
+        for _ in range(int(distance)):
+            current_point = current_point + point_direction
+            edge_points += 1
 
+        vertices.append(current_point)
 
+    # https://en.wikipedia.org/wiki/Shoelace_formula
+    area = sum(get_determinant(start, end) for start, end in itertools.pairwise(vertices))
 
-    return len(data.splitlines())
+    # Rearrangement of Pick's Theorem to remove i
+    # https://en.wikipedia.org/wiki/Pick%27s_theorem
+    return abs(area // 2) + (edge_points // 2) + 1
